@@ -17,23 +17,35 @@ class Focuspoint{
     $this->dpi    = $dim['dpi'];
   }
 
-  public function prepareImage($w, $h, $level = 0, $dir = 'c', $dpi = 72) {
-    // Focus Points Centre of Mass
-    $centre_pt = $this->getCentreMass();
-    $cropL_ratio = $centre_pt['x'] / $this->width;
-    $cropT_ratio = $centre_pt['y'] / $this->height;
+  public function prepareImage($w, $h, $dir = Pivot::CENTRE_MASS, $level = 0, $dpi = 72) {
 
-    // Crop Coordinates Relative to Pivot
+    $crop = [];
     $extra_px = $this->calcExtraPx($w, $h);
-    $cropX = round($extra_px['w'] * $cropL_ratio);
-    $cropY = round($extra_px['h'] * $cropT_ratio);
-    $cropW = round($this->width - $extra_px['w']);
-    $cropH = round($this->height - $extra_px['h']);
 
-    FocuspointFunc::crop($this->file, $cropW, $cropH, $cropX, $cropY, $w, $h);
+    // If source and target aspect ratios are equal, then resize only.
+    if ($extra_px['w'] != $extra_px['h']){
+      // Focus Points Centre of Mass
+      $centre_pt = $this->getCentreMass();
+
+      $crop_factor = [
+        'left' => $centre_pt['x'] / $this->width,
+        'top'  => $centre_pt['y'] / $this->height,
+      ];
+
+      // Crop Coordinates and Size Relative to Pivot
+      $crop = [
+        'x' => round($extra_px['w'] * $crop_factor['left']),
+        'y' => round($extra_px['h'] * $crop_factor['top']),
+        'w' => round($this->width - $extra_px['w']),
+        'h' => round($this->height - $extra_px['h'])
+      ];
+    }
+
+    FocuspointFunc::convert($this->file, $w, $h, $crop);
   }
 
   private function getCentreMass() {
+
     $center_mass = ['x' => 0, 'y' => 0];
     $combined_masses = 0;
 
@@ -57,6 +69,7 @@ class Focuspoint{
   }
 
   private function calcExtraPx($trgt_w, $trgt_h) {
+
     $src_ratio = $this->width / $this->height;
     $trgt_ratio = $trgt_w / $trgt_h;
 
@@ -79,7 +92,6 @@ class Focuspoint{
       ];
     }
   }
-
 }
 
 // ---
@@ -97,8 +109,26 @@ class FocuspointFunc {
     }
   }
 
-  static function crop($file, $cW, $cH, $cX, $cY, $w, $h) {
-    exec("convert {$file} -quiet -crop {$cW}x{$cH}+{$cX}+{$cY} +repage -resize {$w}x{$h}! test.jpg");
-  }
+  static function convert($file, $w, $h, $crop = []) {
+    $cmd = ["convert {$file} -quiet"];
+    if (!empty($crop)) $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
+    $cmd[] = "-resize {$w}x{$h}! test.jpg";
 
+    exec(implode(" ", $cmd));
+  }
+}
+
+// ---
+
+interface Pivot {
+
+  const CENTRE_MASS = 'cm';
+  const NORTH = 'n';
+  const SOUTH = 's';
+  const EAST = 'e';
+  const WEST = 'w';
+  const NORTH_EAST = 'ne';
+  const SOUTH_EAST = 'se';
+  const NORTH_WEST = 'nw';
+  const SOUTH_WEST = 'sw';
 }
