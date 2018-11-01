@@ -182,7 +182,7 @@ class FocuspointFunc {
   static function convert($file, $w, $h, $crop = []) {
     $cmd = ["convert {$file} -quiet"];
     if (!empty($crop)) $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
-    $cmd[] = "-resize {$w}x{$h}! test.jpg";
+    $cmd[] = "-resize {$w}x{$h}! output.jpg";
 
     exec(implode(" ", $cmd));
   }
