@@ -22,17 +22,22 @@ class Focuspoint{
     $crop = [];
     $extra_px = $this->calcExtraPx($w, $h);
 
-    // If source and target aspect ratios are equal, then resize only.
+    // Only crop if source and target aspect ratios are different
     if ($extra_px['w'] != $extra_px['h']){
-      // Focus Points Centre of Mass
-      $centre_pt = $this->getCentreMass();
 
-      $crop_factor = [
-        'left' => $centre_pt['x'] / $this->width,
-        'top'  => $centre_pt['y'] / $this->height,
-      ];
+      // If no focus points, crop as to pivot
+      if (empty($this->focus)){
+        $pivot = $this->getPlainPivot($dir);
+      }
+      else {
+        $pivot = $this->getCentreMass();
+      }
 
       // Crop Coordinates and Size Relative to Pivot
+      $crop_factor = [
+        'left' => $pivot['x'] / $this->width,
+        'top'  => $pivot['y'] / $this->height,
+      ];
       $crop = [
         'x' => round($extra_px['w'] * $crop_factor['left']),
         'y' => round($extra_px['h'] * $crop_factor['top']),
@@ -42,30 +47,6 @@ class Focuspoint{
     }
 
     FocuspointFunc::convert($this->file, $w, $h, $crop);
-  }
-
-  private function getCentreMass() {
-
-    $center_mass = ['x' => 0, 'y' => 0];
-    $combined_masses = 0;
-
-    if(!empty($this->focus)) {
-      foreach ($this->focus as $focus) {
-        $mass             = $focus['width'] * $focus['height'];
-        $center_mass['x'] += $focus['x'] * $mass;
-        $center_mass['y'] += $focus['y'] * $mass;
-        $combined_masses  += $mass;
-      }
-
-      $center_mass['x'] /= $combined_masses;
-      $center_mass['y'] /= $combined_masses;
-    }
-    else{
-      $center_mass['x'] = $this->width / 2;
-      $center_mass['y'] = $this->height / 2;
-    }
-
-    return $center_mass;
   }
 
   private function calcExtraPx($trgt_w, $trgt_h) {
@@ -91,6 +72,95 @@ class Focuspoint{
         'h' => $this->height - ($this->width * ($trgt_h / $trgt_w))
       ];
     }
+  }
+
+  private function getPlainPivot($dir){
+
+    switch ($dir){
+      case Pivot::CENTRE_MASS:
+      case Pivot::CENTRE:
+        $pivot = [
+          'x' => $this->width / 2,
+          'y' => $this->height / 2
+        ];
+        break;
+
+      case Pivot::NORTH:
+        $pivot = [
+          'x' => $this->width / 2,
+          'y' => 0
+        ];
+        break;
+
+      case Pivot::SOUTH:
+        $pivot = [
+          'x' => $this->width / 2,
+          'y' => $this->height
+        ];
+        break;
+
+      case Pivot::EAST:
+        $pivot = [
+          'x' => $this->width,
+          'y' => $this->height / 2
+        ];
+        break;
+
+      case Pivot::WEST:
+        $pivot = [
+          'x' => 0,
+          'y' => $this->height / 2
+        ];
+        break;
+
+      case Pivot::NORTH_EAST:
+        $pivot = [
+          'x' => $this->width,
+          'y' => 0
+        ];
+        break;
+
+      case Pivot::SOUTH_EAST:
+        $pivot = [
+          'x' => $this->width,
+          'y' => $this->height
+        ];
+        break;
+
+      case Pivot::SOUTH_WEST:
+        $pivot = [
+          'x' => 0,
+          'y' => $this->height
+        ];
+        break;
+
+      default:
+        // Default -> NW
+        $pivot = [
+          'x' => 0,
+          'y' => 0
+        ];
+    }
+
+    return $pivot;
+  }
+
+  private function getCentreMass() {
+
+    $center_mass = ['x' => 0, 'y' => 0];
+    $combined_masses = 0;
+
+    foreach ($this->focus as $focus) {
+      $mass              = $focus['width'] * $focus['height'];
+      $center_mass['x'] += $focus['x'] * $mass;
+      $center_mass['y'] += $focus['y'] * $mass;
+      $combined_masses  += $mass;
+    }
+
+    $center_mass['x'] /= $combined_masses;
+    $center_mass['y'] /= $combined_masses;
+
+    return $center_mass;
   }
 }
 
@@ -123,6 +193,7 @@ class FocuspointFunc {
 interface Pivot {
 
   const CENTRE_MASS = 'cm';
+  const CENTRE = 'c';
   const NORTH = 'n';
   const SOUTH = 's';
   const EAST = 'e';
