@@ -33,6 +33,29 @@ class Focuspoint{
     FocuspointFunc::crop($this->file, $cropW, $cropH, $cropX, $cropY, $w, $h);
   }
 
+  private function getCentreMass() {
+    $center_mass = ['x' => 0, 'y' => 0];
+    $combined_masses = 0;
+
+    if(!empty($this->focus)) {
+      foreach ($this->focus as $focus) {
+        $mass             = $focus['width'] * $focus['height'];
+        $center_mass['x'] += $focus['x'] * $mass;
+        $center_mass['y'] += $focus['y'] * $mass;
+        $combined_masses  += $mass;
+      }
+
+      $center_mass['x'] /= $combined_masses;
+      $center_mass['y'] /= $combined_masses;
+    }
+    else{
+      $center_mass['x'] = $this->width / 2;
+      $center_mass['y'] = $this->height / 2;
+    }
+
+    return $center_mass;
+  }
+
   private function calcExtraPx($trgt_w, $trgt_h) {
     $src_ratio = $this->width / $this->height;
     $trgt_ratio = $trgt_w / $trgt_h;
@@ -55,29 +78,6 @@ class Focuspoint{
         'h' => $this->height - ($this->width * ($trgt_h / $trgt_w))
       ];
     }
-  }
-
-  private function getCentreMass() {
-    $center_mass = ['x' => 0, 'y' => 0];
-    $combined_masses = 0;
-
-    if(!empty($this->focus)) {
-      foreach ($this->focus as $focus) {
-        $mass             = $focus['width'] * $focus['height'];
-        $center_mass['x'] += (($focus['x'] + $focus['width']) / 2) * $mass;
-        $center_mass['y'] += (($focus['y'] + $focus['height']) / 2) * $mass;
-        $combined_masses  += $mass;
-      }
-
-      $center_mass['x'] /= $combined_masses;
-      $center_mass['y'] /= $combined_masses;
-    }
-    else{
-      $center_mass['x'] = $this->width / 2;
-      $center_mass['y'] = $this->height / 2;
-    }
-
-    return $center_mass;
   }
 
 }
