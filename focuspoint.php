@@ -38,4 +38,4 @@ $areas = [
 $focus_arr = json_decode($areas[$fid], true);
 $f->setFocus($focus_arr);
 
-$f->prepareImage(200, 200, 'n');
+$f->prepareImage(400, 400, 'cm');

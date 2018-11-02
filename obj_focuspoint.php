@@ -119,13 +119,6 @@ class Focuspoint{
         $pivot = $this->getCentreMass();
         break;
 
-      case Pivot::CENTRE:
-        $pivot = [
-          'x' => ($plane['w'] / 2) + $plane['x'],
-          'y' => ($plane['h'] / 2) + $plane['y']
-        ];
-        break;
-
       case Pivot::NORTH:
         $pivot = [
           'x' => ($plane['w'] / 2) + $plane['x'],
@@ -168,6 +161,13 @@ class Focuspoint{
         ];
         break;
 
+      case Pivot::NORTH_WEST:
+        $pivot = [
+          'x' => $plane['x'],
+          'y' => $plane['y']
+        ];
+        break;
+
       case Pivot::SOUTH_WEST:
         $pivot = [
           'x' => $plane['x'],
@@ -176,10 +176,10 @@ class Focuspoint{
         break;
 
       default:
-        // Default -> NW
+        // Default -> Centre
         $pivot = [
-          'x' => $plane['x'],
-          'y' => $plane['y']
+          'x' => ($plane['w'] / 2) + $plane['x'],
+          'y' => ($plane['h'] / 2) + $plane['y']
         ];
     }
 
