@@ -154,8 +154,8 @@ class Focuspoint{
 
     foreach ($this->focus as $focus) {
       $mass              = $focus['width'] * $focus['height'];
-      $center_mass['x'] += $focus['x'] * $mass;
-      $center_mass['y'] += $focus['y'] * $mass;
+      $center_mass['x'] += ($focus['x'] + ($focus['width']) / 2) * $mass;
+      $center_mass['y'] += ($focus['y'] + ($focus['height']) / 2) * $mass;
       $combined_masses  += $mass;
     }
 
