@@ -79,12 +79,6 @@ class Focuspoint{
         'w' => $max['x'] - $min['x'],
         'h' => $max['y'] - $min['y']
       ];
-
-      FocuspointFunc::debug($focus, $min, $max, $plane);
-      FocuspointFunc::plotPlane($this->file, $min, $max);
-      FocuspointFunc::plotPv($this->file, $max);
-
-      die;
     }
 
     return $plane;
@@ -228,29 +222,33 @@ class FocuspointFunc {
     exec(implode(" ", $cmd));
   }
 
-  static function plotPv($file, $pt = ['x' => 0, 'y' => 0]) {
-    $x = round($pt['x']);
-    $y = round($pt['y']);
-    $rad = $y + 5;
-
+  static function debugPlot($file, $pv = [], $plane = []) {
     $cmd = ["convert {$file} -quiet"];
-    $cmd[] = "-fill purple -draw 'circle {$x},{$y} {$x},{$rad}'";
-    $cmd[] = "debug-pivot.jpg";
+
+    if(!empty($pv)){
+      $pvx = round($pv['x']);
+      $pvy = round($pv['y']);
+      $pv_rad = $pvy + 5;
+
+      $cmd[] = "-fill purple -draw 'circle {$pvx},{$pvy} {$pvx},{$pv_rad}'";
+    }
+
+    if(!empty($plane)){
+      $pt1 = ['x' => $plane['x'], 'y' => $plane['y']];
+      $pt2 = [
+        'x' => $plane['x'] + $plane['w'],
+        'y' => $plane['y'] + $plane['h']
+      ];
+
+      $cmd[] = "-stroke purple -fill transparent -draw 'rectangle {$pt1['x']},{$pt1['y']} {$pt2['x']},{$pt2['y']}'";
+    }
+
+    $cmd[] = "debug.jpg";
 
     exec(implode(" ", $cmd));
   }
 
-  static function plotPlane($file, $pt1 = [], $pt2 = []) {
-    if (!empty($pt1) && !empty($pt2)){
-      $cmd = ["convert {$file} -quiet"];
-      $cmd[] = "-stroke purple -fill transparent -draw 'rectangle {$pt1['x']},{$pt1['y']} {$pt2['x']},{$pt2['y']}'";
-      $cmd[] = "debug-plane.jpg";
-
-      exec(implode(" ", $cmd));
-    }
-  }
-
-  static function debug(...$args) {
+  static function debugVars(...$args) {
     foreach ($args as $arg){
       print_r($arg);
       echo PHP_EOL;
