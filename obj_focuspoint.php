@@ -25,13 +25,9 @@ class Focuspoint{
     // Only crop if source and target aspect ratios are different
     if ($extra_px['w'] != $extra_px['h']){
 
-      // If no focus points, crop as to pivot
-      if (empty($this->focus)){
-        $pivot = $this->getPlainPivot($dir);
-      }
-      else {
-        $pivot = $this->getCentreMass();
-      }
+      $focus_plane = $this->getFocusPlane();
+      $pivot = $this->getPivot($focus_plane, $dir);
+      //$pivot = $this->getCentreMass();
 
       // Crop Coordinates and Size Relative to Pivot
       $crop_factor = [
@@ -44,13 +40,54 @@ class Focuspoint{
         'w' => round($this->width - $extra_px['w']),
         'h' => round($this->height - $extra_px['h'])
       ];
-
-      //FocuspointFunc::debug($extra_px, $pivot, $crop_factor, $crop);die;
-
-      FocuspointFunc::plotPv($this->file, $pivot);
     }
 
     FocuspointFunc::convert($this->file, $w, $h, $crop);
+  }
+
+  private function getFocusPlane() {
+    $plane = [
+      'x' => 0,
+      'y' => 0,
+      'w' => $this->width,
+      'h' => $this->height
+    ];
+
+    if (!empty($this->focus)){
+      $focus = [];
+      foreach ($this->focus as $key => $arr){
+        $focus[] = array_merge($arr, [
+          'max_x' => $arr['x'] + $arr['width'],
+          'max_y' => $arr['y'] + $arr['height'],
+        ]);
+      }
+
+      $min = [
+        'x' => min(array_column($focus, 'x')),
+        'y' => min(array_column($focus, 'y'))
+      ];
+
+      $max = [
+        'x' => max(array_column($focus, 'max_x')),
+        'y' => max(array_column($focus, 'max_y'))
+      ];
+
+      // Combine
+      $plane = [
+        'x' => $min['x'],
+        'y' => $min['y'],
+        'w' => $max['x'] - $min['x'],
+        'h' => $max['y'] - $min['y']
+      ];
+
+      FocuspointFunc::debug($focus, $min, $max, $plane);
+      FocuspointFunc::plotPlane($this->file, $min, $max);
+      FocuspointFunc::plotPv($this->file, $max);
+
+      die;
+    }
+
+    return $plane;
   }
 
   private function calcExtraPx($trgt_w, $trgt_h) {
@@ -78,7 +115,7 @@ class Focuspoint{
     }
   }
 
-  private function getPlainPivot($dir){
+  private function getPivot($plane, $dir){
 
     switch ($dir){
       case Pivot::CENTRE_MASS:
@@ -203,8 +240,21 @@ class FocuspointFunc {
     exec(implode(" ", $cmd));
   }
 
+  static function plotPlane($file, $pt1 = [], $pt2 = []) {
+    if (!empty($pt1) && !empty($pt2)){
+      $cmd = ["convert {$file} -quiet"];
+      $cmd[] = "-stroke purple -fill transparent -draw 'rectangle {$pt1['x']},{$pt1['y']} {$pt2['x']},{$pt2['y']}'";
+      $cmd[] = "debug.jpg";
+
+      exec(implode(" ", $cmd));
+    }
+  }
+
   static function debug(...$args) {
-    foreach ($args as $arg) print_r($arg);
+    foreach ($args as $arg){
+      print_r($arg);
+      echo PHP_EOL;
+    }
   }
 }
 
