@@ -235,7 +235,7 @@ class FocuspointFunc {
 
     $cmd = ["convert {$file} -quiet"];
     $cmd[] = "-fill purple -draw 'circle {$x},{$y} {$x},{$rad}'";
-    $cmd[] = "debug.jpg";
+    $cmd[] = "debug-pivot.jpg";
 
     exec(implode(" ", $cmd));
   }
@@ -244,7 +244,7 @@ class FocuspointFunc {
     if (!empty($pt1) && !empty($pt2)){
       $cmd = ["convert {$file} -quiet"];
       $cmd[] = "-stroke purple -fill transparent -draw 'rectangle {$pt1['x']},{$pt1['y']} {$pt2['x']},{$pt2['y']}'";
-      $cmd[] = "debug.jpg";
+      $cmd[] = "debug-plane.jpg";
 
       exec(implode(" ", $cmd));
     }
