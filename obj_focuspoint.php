@@ -183,6 +183,14 @@ class FocuspointFunc {
     }
   }
 
+  static function convert($file, $w, $h, $crop = []) {
+    $cmd = ["convert {$file} -quiet"];
+    if (!empty($crop)) $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
+    $cmd[] = "-resize {$w}x{$h}! output.jpg";
+
+    exec(implode(" ", $cmd));
+  }
+
   static function plotPv($file, $pt = ['x' => 0, 'y' => 0]) {
     $x = round($pt['x']);
     $y = round($pt['y']);
@@ -192,20 +200,11 @@ class FocuspointFunc {
     $cmd[] = "-fill purple -draw 'circle {$x},{$y} {$x},{$rad}'";
     $cmd[] = "debug.jpg";
 
-    echo implode(" ", $cmd);
     exec(implode(" ", $cmd));
   }
 
   static function debug(...$args) {
     foreach ($args as $arg) print_r($arg);
-  }
-
-  static function convert($file, $w, $h, $crop = []) {
-    $cmd = ["convert {$file} -quiet"];
-    if (!empty($crop)) $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
-    $cmd[] = "-resize {$w}x{$h}! output.jpg";
-
-    exec(implode(" ", $cmd));
   }
 }
 
