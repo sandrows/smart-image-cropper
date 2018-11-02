@@ -41,11 +41,13 @@ class Focuspoint{
 
       // Crop dimensions
       $crop = [
-        'x' => round($extra_px['w'] * $crop_factor['left']),
-        'y' => round($extra_px['h'] * $crop_factor['top']),
-        'w' => round($this->width - $extra_px['w']),
-        'h' => round($this->height - $extra_px['h'])
+        'x' => round($extra_px['w'] * $crop_factor['left']), // Crop from left
+        'y' => round($extra_px['h'] * $crop_factor['top']), // Crop from top
+        'w' => round($this->width - $extra_px['w']), // Crop from right
+        'h' => round($this->height - $extra_px['h']) // Crop from bottom
       ];
+
+      FocuspointFunc::debugPlot($this->file, $pivot, $focus_plane);
     }
 
     FocuspointFunc::convert($this->file, $w, $h, $crop, $text);
