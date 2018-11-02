@@ -1,7 +1,7 @@
 <?php
 require_once ('obj_focuspoint.php');
 
-$fid = 5;
+$fid = 2;
 
 $f = new Focuspoint();
 $f->loadImage("img/{$fid}.jpg");
@@ -41,22 +41,20 @@ $f->setFocus($focus_arr);
 $text = [
   [
     'family' => 'Ubuntu Mono',
-    'pointsize' => '72',
+    'pointsize' => '50',
     'fill' => 'purple',
     'text' => 'Text 1',
-    'x' => '0',
-    'y' => '10'
+    'gravity' => 'southwest'
   ],
   [
     'family' => 'DejaVu Sans Mono',
     'fill' => 'white',
-    'pointsize' => '72',
+    'pointsize' => '40',
     'weight' => '800',
     'style' => 'Italic',
     'text' => 'Text 2',
-    'x' => '400',
-    'y' => '400'
+    'gravity' => 'northeast'
   ]
 ];
 
-$f->prepareImage(400, 400, 'w', $text);
+$f->prepareImage(720, 300, 'c', $text);

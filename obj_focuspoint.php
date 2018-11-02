@@ -226,6 +226,7 @@ class FocuspointFunc {
     if (!empty($crop)){
       $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
     }
+
     if (!empty($text)){
       $cmd[] = self::textParser($text);
     }
@@ -236,26 +237,22 @@ class FocuspointFunc {
   }
 
   static function textParser($text){
-    $mandatory = ['x', 'y', 'text'];
     $defaults = [
       'family' => 'Arial',
       'fill' => 'black',
       'pointsize' => '12',
       'weight' => '400',
-      'style' => 'Normal'
+      'style' => 'Normal',
+      'gravity' => 'center'
     ];
 
     $cmd = [];
     foreach ($text as $line){
 
-      foreach ($mandatory as $key){
-        if (!isset($line[$key]) || $line[$key] == '') continue 2;
-      }
+      if (empty($line['text'])) continue;
 
-      $x = $line['x'];
-      $y = $line['y'];
       $str = $line['text'];
-      unset($line['x'], $line['y'], $line['text']);
+      unset($line['text']);
 
       $line = array_merge($defaults, $line);
       foreach ($line as $arg => $value){
@@ -264,7 +261,7 @@ class FocuspointFunc {
         $cmd[] = "-{$arg} $value";
       }
 
-      $cmd[] = "-draw 'text {$x},{$y} \"{$str}\"'";
+      $cmd[] = "-annotate 0 '{$str}'";
     }
 
     return implode(" ", $cmd);
