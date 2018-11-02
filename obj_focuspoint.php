@@ -45,6 +45,8 @@ class Focuspoint{
         'h' => round($this->height - $extra_px['h'])
       ];
 
+      //FocuspointFunc::debug($extra_px, $pivot, $crop_factor, $crop);die;
+
       FocuspointFunc::plotPv($this->file, $pivot);
     }
 
@@ -192,6 +194,10 @@ class FocuspointFunc {
 
     echo implode(" ", $cmd);
     exec(implode(" ", $cmd));
+  }
+
+  static function debug(...$args) {
+    foreach ($args as $arg) print_r($arg);
   }
 
   static function convert($file, $w, $h, $crop = []) {
