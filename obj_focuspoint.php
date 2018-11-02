@@ -27,7 +27,6 @@ class Focuspoint{
 
       $focus_plane = $this->getFocusPlane();
       $pivot = $this->getPivot($focus_plane, $dir);
-      //$pivot = $this->getCentreMass();
 
       // Crop Coordinates and Size Relative to Pivot
       $crop_factor = [
@@ -111,69 +110,76 @@ class Focuspoint{
 
   private function getPivot($plane, $dir){
 
+    if($dir == Pivot::CENTRE_MASS && empty($this->focus)){
+      $dir = Pivot::CENTRE;
+    }
+
     switch ($dir){
       case Pivot::CENTRE_MASS:
+        $pivot = $this->getCentreMass();
+        break;
+
       case Pivot::CENTRE:
         $pivot = [
-          'x' => $this->width / 2,
-          'y' => $this->height / 2
+          'x' => ($plane['w'] / 2) + $plane['x'],
+          'y' => ($plane['h'] / 2) + $plane['y']
         ];
         break;
 
       case Pivot::NORTH:
         $pivot = [
-          'x' => $this->width / 2,
-          'y' => 0
+          'x' => ($plane['w'] / 2) + $plane['x'],
+          'y' => $plane['y']
         ];
         break;
 
       case Pivot::SOUTH:
         $pivot = [
-          'x' => $this->width / 2,
-          'y' => $this->height
+          'x' => ($plane['w'] / 2) + $plane['x'],
+          'y' => $plane['h'] + $plane['y']
         ];
         break;
 
       case Pivot::EAST:
         $pivot = [
-          'x' => $this->width,
-          'y' => $this->height / 2
+          'x' => $plane['w'] + $plane['x'],
+          'y' => ($plane['h'] / 2) + $plane['y']
         ];
         break;
 
       case Pivot::WEST:
         $pivot = [
-          'x' => 0,
-          'y' => $this->height / 2
+          'x' => $plane['x'],
+          'y' => ($plane['h'] / 2) + $plane['y']
         ];
         break;
 
       case Pivot::NORTH_EAST:
         $pivot = [
-          'x' => $this->width,
-          'y' => 0
+          'x' => $plane['w'] + $plane['x'],
+          'y' => $plane['y']
         ];
         break;
 
       case Pivot::SOUTH_EAST:
         $pivot = [
-          'x' => $this->width,
-          'y' => $this->height
+          'x' => $plane['w'] + $plane['x'],
+          'y' => $plane['h'] + $plane['y']
         ];
         break;
 
       case Pivot::SOUTH_WEST:
         $pivot = [
-          'x' => 0,
-          'y' => $this->height
+          'x' => $plane['x'],
+          'y' => $plane['h'] + $plane['y']
         ];
         break;
 
       default:
         // Default -> NW
         $pivot = [
-          'x' => 0,
-          'y' => 0
+          'x' => $plane['x'],
+          'y' => $plane['y']
         ];
     }
 

@@ -1,7 +1,7 @@
 <?php
 require_once ('obj_focuspoint.php');
 
-$fid = 1;
+$fid = 5;
 
 $f = new Focuspoint();
 $f->loadImage("img/{$fid}.jpg");
@@ -38,4 +38,4 @@ $areas = [
 $focus_arr = json_decode($areas[$fid], true);
 $f->setFocus($focus_arr);
 
-$f->prepareImage(200, 200);
+$f->prepareImage(200, 200, 'n');
