@@ -44,6 +44,31 @@ class Focuspoint{
     FocuspointFunc::convert($this->file, $w, $h, $crop);
   }
 
+  private function calcExtraPx($trgt_w, $trgt_h) {
+
+    $src_ratio = $this->width / $this->height;
+    $trgt_ratio = $trgt_w / $trgt_h;
+
+    if($src_ratio == $trgt_ratio){
+      return [
+        'w' => 0,
+        'h' => 0
+      ];
+    }
+    elseif($src_ratio > $trgt_ratio){
+      return [
+        'w' => $this->width - ($this->height * $trgt_ratio),
+        'h' => 0
+      ];
+    }
+    else{
+      return [
+        'w' => 0,
+        'h' => $this->height - ($this->width * ($trgt_h / $trgt_w))
+      ];
+    }
+  }
+
   private function getFocusPlane() {
     $plane = [
       'x' => 0,
@@ -81,31 +106,6 @@ class Focuspoint{
     }
 
     return $plane;
-  }
-
-  private function calcExtraPx($trgt_w, $trgt_h) {
-
-    $src_ratio = $this->width / $this->height;
-    $trgt_ratio = $trgt_w / $trgt_h;
-
-    if($src_ratio == $trgt_ratio){
-      return [
-        'w' => 0,
-        'h' => 0
-      ];
-    }
-    elseif($src_ratio > $trgt_ratio){
-      return [
-        'w' => $this->width - ($this->height * $trgt_ratio),
-        'h' => 0
-      ];
-    }
-    else{
-      return [
-        'w' => 0,
-        'h' => $this->height - ($this->width * ($trgt_h / $trgt_w))
-      ];
-    }
   }
 
   private function getPivot($plane, $dir){
