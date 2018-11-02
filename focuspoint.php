@@ -1,11 +1,13 @@
 <?php
 require_once ('obj_focuspoint.php');
 
+// Demo images from 0-5
 $fid = 2;
 
 $f = new Focuspoint();
 $f->loadImage("img/{$fid}.jpg");
 
+// Focus points according to each demo
 $areas = [
   '0' => '[]', // No focus points
 
@@ -52,7 +54,7 @@ $text = [
     'pointsize' => '40',
     'weight' => '800',
     'style' => 'Italic',
-    'text' => 'Text 2',
+    'text' => 'Text 2\nLine 2',
     'gravity' => 'northeast'
   ]
 ];

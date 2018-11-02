@@ -20,19 +20,26 @@ class Focuspoint{
   public function prepareImage($w, $h, $dir = Pivot::CENTRE_MASS, $text = [], $level = 0, $dpi = 72) {
 
     $crop = [];
+
+    // Calculate how much pixels to crop, depending on source and target aspect ratios
     $extra_px = $this->calcExtraPx($w, $h);
 
-    // Only crop if source and target aspect ratios are different
+    // Only crop if source and target aspect ratios are different, else resize only
     if ($extra_px['w'] != $extra_px['h']){
 
+      // Combine focus points to one big area
       $focus_plane = $this->getFocusPlane();
+
+      // Set the cropping point relative to the plane and as per the direction
       $pivot = $this->getPivot($focus_plane, $dir);
 
-      // Crop Coordinates and Size Relative to Pivot
+      // How much to crop relative to pivot
       $crop_factor = [
         'left' => $pivot['x'] / $this->width,
         'top'  => $pivot['y'] / $this->height,
       ];
+
+      // Crop dimensions
       $crop = [
         'x' => round($extra_px['w'] * $crop_factor['left']),
         'y' => round($extra_px['h'] * $crop_factor['top']),
@@ -46,22 +53,27 @@ class Focuspoint{
 
   private function calcExtraPx($trgt_w, $trgt_h) {
 
+    // Only crop from one side, so there is no unnecessary cropping done,
+
     $src_ratio = $this->width / $this->height;
     $trgt_ratio = $trgt_w / $trgt_h;
 
     if($src_ratio == $trgt_ratio){
+      // No cropping because source and target aspect ratios are the same
       return [
         'w' => 0,
         'h' => 0
       ];
     }
     elseif($src_ratio > $trgt_ratio){
+      // Horizontal crop
       return [
         'w' => $this->width - ($this->height * $trgt_ratio),
         'h' => 0
       ];
     }
     else{
+      // Vertical crop
       return [
         'w' => 0,
         'h' => $this->height - ($this->width * ($trgt_h / $trgt_w))
@@ -70,6 +82,8 @@ class Focuspoint{
   }
 
   private function getFocusPlane() {
+
+    // Defaults to the whole image
     $plane = [
       'x' => 0,
       'y' => 0,
@@ -77,6 +91,7 @@ class Focuspoint{
       'h' => $this->height
     ];
 
+    // Calculate nearest and furthest points to get the plane
     if (!empty($this->focus)){
       $focus = [];
       foreach ($this->focus as $key => $arr){
@@ -110,10 +125,12 @@ class Focuspoint{
 
   private function getPivot($plane, $dir){
 
+    // Centre of mass depends on focus points, so if none exists fallback to centre
     if($dir == Pivot::CENTRE_MASS && empty($this->focus)){
       $dir = Pivot::CENTRE;
     }
 
+    // Calculate the pivot coordinates on the plane depending on the direction
     switch ($dir){
       case Pivot::CENTRE_MASS:
         $pivot = $this->getCentreMass();
@@ -187,21 +204,22 @@ class Focuspoint{
   }
 
   private function getCentreMass() {
+    // Calculate the weighted average of all focus points depending on their masses
 
-    $center_mass = ['x' => 0, 'y' => 0];
+    $centre_mass = ['x' => 0, 'y' => 0];
     $combined_masses = 0;
 
     foreach ($this->focus as $focus) {
       $mass              = $focus['width'] * $focus['height'];
-      $center_mass['x'] += ($focus['x'] + ($focus['width']) / 2) * $mass;
-      $center_mass['y'] += ($focus['y'] + ($focus['height']) / 2) * $mass;
+      $centre_mass['x'] += ($focus['x'] + ($focus['width']) / 2) * $mass;
+      $centre_mass['y'] += ($focus['y'] + ($focus['height']) / 2) * $mass;
       $combined_masses  += $mass;
     }
 
-    $center_mass['x'] /= $combined_masses;
-    $center_mass['y'] /= $combined_masses;
+    $centre_mass['x'] /= $combined_masses;
+    $centre_mass['y'] /= $combined_masses;
 
-    return $center_mass;
+    return $centre_mass;
   }
 }
 
@@ -212,7 +230,6 @@ class FocuspointFunc {
   static function identify($file) {
     if (file_exists($file)) {
       list ($width, $height, $dpi) = explode(' ', exec("identify -quiet -format '%w %h %x' {$file}"));
-
       return ['width' => $width, 'height' => $height, 'dpi' => $dpi];
     }
     else {
@@ -223,14 +240,17 @@ class FocuspointFunc {
   static function convert($file, $w, $h, $crop, $text) {
     $cmd = ["convert {$file} -quiet"];
 
+    // Crop if necessary
     if (!empty($crop)){
       $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
     }
 
+    // Add text if available
     if (!empty($text)){
       $cmd[] = self::textParser($text);
     }
 
+    // Finally, resize
     $cmd[] = "-resize {$w}x{$h}! output.jpg";
 
     exec(implode(" ", $cmd));
@@ -249,15 +269,21 @@ class FocuspointFunc {
     $cmd = [];
     foreach ($text as $line){
 
+      // If no text string
       if (empty($line['text'])) continue;
 
       $str = $line['text'];
       unset($line['text']);
 
+      // Include all the defaults to reset each line's options
       $line = array_merge($defaults, $line);
+
       foreach ($line as $arg => $value){
         if (empty($value)) $value = $defaults[$arg];
+
+        // Font names contain spaces, wrap in quotes
         if ($arg == 'family') $value = "'{$value}'";
+
         $cmd[] = "-{$arg} $value";
       }
 
@@ -268,6 +294,10 @@ class FocuspointFunc {
   }
 
   static function debugPlot($file, $pv = [], $plane = []) {
+    // Outputs a debug image with the pivot/plane drawn on top of it
+    // Pivot has to be x,y
+    // Plane has to be x,y,w,h
+
     $cmd = ["convert {$file} -quiet"];
 
     if(!empty($pv)){
@@ -294,6 +324,7 @@ class FocuspointFunc {
   }
 
   static function debugVars(...$args) {
+    // Helper to print multiple vars
     foreach ($args as $arg){
       print_r($arg);
       echo PHP_EOL;
