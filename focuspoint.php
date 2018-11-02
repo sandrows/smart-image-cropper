@@ -38,4 +38,25 @@ $areas = [
 $focus_arr = json_decode($areas[$fid], true);
 $f->setFocus($focus_arr);
 
-$f->prepareImage(400, 400, 'cm');
+$text = [
+  [
+    'family' => 'Ubuntu Mono',
+    'pointsize' => '72',
+    'fill' => 'purple',
+    'text' => 'Text 1',
+    'x' => '0',
+    'y' => '10'
+  ],
+  [
+    'family' => 'DejaVu Sans Mono',
+    'fill' => 'white',
+    'pointsize' => '72',
+    'weight' => '800',
+    'style' => 'Italic',
+    'text' => 'Text 2',
+    'x' => '400',
+    'y' => '400'
+  ]
+];
+
+$f->prepareImage(400, 400, 'w', $text);

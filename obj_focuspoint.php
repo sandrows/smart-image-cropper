@@ -17,7 +17,7 @@ class Focuspoint{
     $this->dpi    = $dim['dpi'];
   }
 
-  public function prepareImage($w, $h, $dir = Pivot::CENTRE_MASS, $level = 0, $dpi = 72) {
+  public function prepareImage($w, $h, $dir = Pivot::CENTRE_MASS, $text = [], $level = 0, $dpi = 72) {
 
     $crop = [];
     $extra_px = $this->calcExtraPx($w, $h);
@@ -41,7 +41,7 @@ class Focuspoint{
       ];
     }
 
-    FocuspointFunc::convert($this->file, $w, $h, $crop);
+    FocuspointFunc::convert($this->file, $w, $h, $crop, $text);
   }
 
   private function calcExtraPx($trgt_w, $trgt_h) {
@@ -220,12 +220,54 @@ class FocuspointFunc {
     }
   }
 
-  static function convert($file, $w, $h, $crop = []) {
+  static function convert($file, $w, $h, $crop, $text) {
     $cmd = ["convert {$file} -quiet"];
-    if (!empty($crop)) $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
+
+    if (!empty($crop)){
+      $cmd[] = "-crop {$crop['w']}x{$crop['h']}+{$crop['x']}+{$crop['y']} +repage";
+    }
+    if (!empty($text)){
+      $cmd[] = self::textParser($text);
+    }
+
     $cmd[] = "-resize {$w}x{$h}! output.jpg";
 
     exec(implode(" ", $cmd));
+  }
+
+  static function textParser($text){
+    $mandatory = ['x', 'y', 'text'];
+    $defaults = [
+      'family' => 'Arial',
+      'fill' => 'black',
+      'pointsize' => '12',
+      'weight' => '400',
+      'style' => 'Normal'
+    ];
+
+    $cmd = [];
+    foreach ($text as $line){
+
+      foreach ($mandatory as $key){
+        if (!isset($line[$key]) || $line[$key] == '') continue 2;
+      }
+
+      $x = $line['x'];
+      $y = $line['y'];
+      $str = $line['text'];
+      unset($line['x'], $line['y'], $line['text']);
+
+      $line = array_merge($defaults, $line);
+      foreach ($line as $arg => $value){
+        if (empty($value)) $value = $defaults[$arg];
+        if ($arg == 'family') $value = "'{$value}'";
+        $cmd[] = "-{$arg} $value";
+      }
+
+      $cmd[] = "-draw 'text {$x},{$y} \"{$str}\"'";
+    }
+
+    return implode(" ", $cmd);
   }
 
   static function debugPlot($file, $pv = [], $plane = []) {
