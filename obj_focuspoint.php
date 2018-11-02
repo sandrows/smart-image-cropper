@@ -44,6 +44,8 @@ class Focuspoint{
         'w' => round($this->width - $extra_px['w']),
         'h' => round($this->height - $extra_px['h'])
       ];
+
+      FocuspointFunc::plotPv($this->file, $pivot);
     }
 
     FocuspointFunc::convert($this->file, $w, $h, $crop);
@@ -177,6 +179,19 @@ class FocuspointFunc {
     else {
       return false;
     }
+  }
+
+  static function plotPv($file, $pt = ['x' => 0, 'y' => 0]) {
+    $x = round($pt['x']);
+    $y = round($pt['y']);
+    $rad = $y + 5;
+
+    $cmd = ["convert {$file} -quiet"];
+    $cmd[] = "-fill purple -draw 'circle {$x},{$y} {$x},{$rad}'";
+    $cmd[] = "debug.jpg";
+
+    echo implode(" ", $cmd);
+    exec(implode(" ", $cmd));
   }
 
   static function convert($file, $w, $h, $crop = []) {

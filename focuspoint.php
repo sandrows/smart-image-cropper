@@ -7,6 +7,8 @@ $f = new Focuspoint();
 $f->loadImage("img/{$fid}.jpg");
 
 $areas = [
+  '0' => '[]', // No focus points
+
   '1' => '[
     {"id":1, "width":182, "height":263, "x":134,  "y":54, "z":0},
     {"id":2, "width":193, "height":228, "x":409, "y":277, "z":0}
@@ -30,10 +32,10 @@ $areas = [
   '5' => '[
     {"id":1, "width":182, "height":263, "x":134,  "y":54, "z":0},
     {"id":1, "width":277, "height":140, "x":977,  "y":244, "z":0}
-  ]',
+  ]'
 ];
 
 $focus_arr = json_decode($areas[$fid], true);
 $f->setFocus($focus_arr);
 
-$f->prepareImage(400, 500);
+$f->prepareImage(200, 200);
