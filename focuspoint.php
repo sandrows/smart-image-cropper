@@ -2,7 +2,7 @@
 require_once ('obj_focuspoint.php');
 
 // Demo images from 0-5
-$fid = 3;
+$fid = 1;
 
 $f = new Focuspoint();
 $f->loadImage("img/{$fid}.jpg");
@@ -30,4 +30,4 @@ $text = [
   ]
 ];
 
-$f->prepareImage(720, 300, 'c', $text);
+$f->processImage(720, 300, 'c', $text);

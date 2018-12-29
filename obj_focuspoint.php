@@ -17,7 +17,7 @@ class Focuspoint{
     $this->focus = $focus;
   }
 
-  public function prepareImage($w, $h, $dir = Pivot::CENTRE_MASS, $text = [], $level = 0, $dpi = 72) {
+  public function processImage($w, $h, $dir = Pivot::CENTRE_MASS, $text = []) {
 
     $crop = [];
 
