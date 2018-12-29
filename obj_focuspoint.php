@@ -4,10 +4,6 @@ class Focuspoint{
 
   private $file, $focus = [], $width, $height, $dpi;
 
-  public function setFocus($focus) {
-    $this->focus = $focus;
-  }
-
   public function loadImage($file) {
     $this->file = $file;
 
@@ -15,6 +11,10 @@ class Focuspoint{
     $this->width  = $dim['width'];
     $this->height = $dim['height'];
     $this->dpi    = $dim['dpi'];
+  }
+
+  public function setFocus($focus) {
+    $this->focus = $focus;
   }
 
   public function prepareImage($w, $h, $dir = Pivot::CENTRE_MASS, $text = [], $level = 0, $dpi = 72) {
