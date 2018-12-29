@@ -22,7 +22,7 @@ $text = [
 As this code depends on [Image Magick](http://www.imagemagick.org/), it is ready to run from any linux-based machine with the convert command available. To check if Image Magick is installed, run this from terminal:
 `which convert`, it shall point to the location of the package.
 
-For a demonstration of how it works; I have prepared some demo images with their focus areas included in the JSON file and contrasted more in the images. [Download them here](https://gist.github.com/astockwell/11055104#file-videourlparser-class-php) and extract the archive at the root. A new directory "img" shall be created containing the images.
+For a demonstration of how it works; I have prepared some demo images with their focus areas included in the JSON file and contrasted more in the images. [Download them here](https://1drv.ms/u/s!ArHIW2lUlBjgkRbAr797W0XN514g) and extract the archive at the root. A new directory "img" shall be created containing the images.
 
 And thus you can run the script from the terminal:
 ```text
